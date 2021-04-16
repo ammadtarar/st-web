@@ -73,6 +73,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "Mobile-Contact",
   components: {},
@@ -88,18 +90,34 @@ export default {
       console.log("onClickSubmit");
       this.submitting = true;
 
-      let msg = `Message from ${this.form.name} from Sawa technoloie website.\n
-      Name : ${this.form.name}\n
-      Name : ${this.form.email}\n
-      Subject : ${this.form.subject}\n
-      Subject : ${this.form.message}\n`;
-      console.log(msg);
+      var host = window.location.host;
+      console.log("host = ", host);
 
-      setTimeout(() => {
-        this.submitting = false;
-        this.showPopup = true;
-      }, 1000);
-
+      axios
+        .post(`${host}/send/email`, {
+          name: this.form.name,
+          email: this.form.email,
+          subject: this.form.subject,
+          message: this.form.message,
+        })
+        .then((res) => {
+          console.log("Email sent");
+          console.log(res);
+          setTimeout(() => {
+            this.submitting = false;
+            this.showPopup = true;
+            this.form = {};
+          }, 1000);
+        })
+        .catch((err) => {
+          console.log("Email failed");
+          console.log(err);
+          setTimeout(() => {
+            this.submitting = false;
+            this.showPopup = true;
+            this.form = {};
+          }, 1000);
+        });
     },
     onClickDismiss() {
       this.showPopup = false;

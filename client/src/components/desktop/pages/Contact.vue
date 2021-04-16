@@ -16,16 +16,18 @@
                 class="field name"
                 placeholder="Your name"
                 style="float : left"
+                v-model="form.name"
               />
               <input
                 type="email"
                 class="field email"
                 placeholder="Your email"
                 style="float : right"
+                v-model="form.email"
               />
             </div>
-            <input type="text" class="field subject" placeholder="Subject" />
-            <textarea class="field message" placeholder="Message"></textarea>
+            <input type="text" class="field subject" placeholder="Subject"  v-model="form.subject"/>
+            <textarea class="field message" placeholder="Message" v-model="form.message"></textarea>
             <div class="actions">
               <button class="submit" @click="onClickSubmit" v-if="!submitting">
                 Submit
@@ -58,23 +60,52 @@
 </template>
 
 <script>
+
+import axios from "axios";
+
 export default {
   name: "Contact",
   props: {},
   data() {
     return {
       submitting: false,
-      showPopup: false
+      showPopup: false,
+      form: {},
     };
   },
   methods: {
     onClickSubmit() {
       console.log("onClickSubmit");
       this.submitting = true;
-      setTimeout(() => {
-        this.submitting = false;
-        this.showPopup = true;  
-      }, 1000);
+
+      var host = window.location.host;
+      console.log("host = ", host);
+
+      axios
+        .post(`${host}/send/email`, {
+          name: this.form.name,
+          email: this.form.email,
+          subject: this.form.subject,
+          message: this.form.message,
+        })
+        .then((res) => {
+          console.log("Email sent");
+          console.log(res);
+          setTimeout(() => {
+            this.submitting = false;
+            this.showPopup = true;
+            this.form = {};
+          }, 1000);
+        })
+        .catch((err) => {
+          console.log("Email failed");
+          console.log(err);
+          setTimeout(() => {
+            this.submitting = false;
+            this.showPopup = true;
+            this.form = {};
+          }, 1000);
+        });
     },
     onClickDismiss(){
       this.showPopup = false;
